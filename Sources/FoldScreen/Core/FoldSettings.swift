@@ -12,17 +12,17 @@ enum FoldPreset: Int, CaseIterable, Identifiable, Sendable {
     /// Shown in settings. The app speaks Chinese; the code stays in English.
     var title: String {
         switch self {
-        case .veil: return "轻纱"
-        case .crease: return "折痕"
-        case .haze: return "雾面"
+        case .veil: return "Gauze"
+        case .crease: return "Crease"
+        case .haze: return "Frost"
         }
     }
 
     var detail: String {
         switch self {
-        case .veil: return "均衡。折角柔和，中间区域保持清晰。"
-        case .crease: return "折痕更硬，两侧收得更紧，立体感最强。"
-        case .haze: return "更重的虚化，顶部泛一点冷光。"
+        case .veil: return "Balanced. A soft fold that keeps the middle of the screen clear."
+        case .crease: return "A harder crease that pinches the sides tighter for the strongest 3D feel."
+        case .haze: return "Heavier blur with a faint cool glow at the top."
         }
     }
 }

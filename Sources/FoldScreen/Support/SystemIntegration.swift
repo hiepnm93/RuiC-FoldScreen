@@ -91,12 +91,12 @@ enum LoginItem {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            return "无法修改「登录时打开」：\(error.localizedDescription)"
+            return "Could not update \"Open at Login\": \(error.localizedDescription)"
         }
         // macOS sometimes parks the request until the user confirms it.
         if SMAppService.mainApp.status == .requiresApproval {
             SMAppService.openSystemSettingsLoginItems()
-            return "已提交请求，请在「系统设置 → 通用 → 登录项」中允许。"
+            return "Request submitted. Approve it in System Settings → General → Login Items."
         }
         return nil
     }

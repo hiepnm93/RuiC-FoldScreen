@@ -72,7 +72,7 @@ final class LiveFold: ObservableObject {
     /// The raw screen recording grant, mirrored for the settings UI.
     @Published private(set) var hasScreenRecordingPermission = CGPreflightScreenCaptureAccess()
     /// One line of human-readable status for the settings window.
-    @Published private(set) var detail = "尚未启用。打开开关后，合盖就会弯屏。"
+    @Published private(set) var detail = "Not enabled yet. Flip the switch and closing the lid folds the screen."
 
     let store: SettingsStore
 
@@ -114,7 +114,7 @@ final class LiveFold: ObservableObject {
             // Losing the sensor while the effect is live means the lid just shut
             // or the machine is mid-sleep: either way the effect has to pause.
             if angle == nil, self.state == .live, self.store.settings.followLid {
-                self.interrupt("等不到翻盖角度传感器了。")
+                self.interrupt("Timed out waiting for the lid-angle sensor.")
             }
         }
         self.mirror.onFrame = { [weak self] buffer in
@@ -122,7 +122,7 @@ final class LiveFold: ObservableObject {
         }
         self.mirror.onFailure = { [weak self] error in
             Task { @MainActor in
-                self?.interrupt("屏幕采集中断：\(error.localizedDescription)")
+                self?.interrupt("Screen capture interrupted: \(error.localizedDescription)")
             }
         }
 
@@ -151,7 +151,7 @@ final class LiveFold: ObservableObject {
         start()
     }
 
-    func disable(message: String = "已暂停，桌面恢复正常。") {
+    func disable(message: String = "Paused. Desktop restored.") {
         isEnabled = false
         defaults.set(false, forKey: Self.enabledKey)
         stop(message: message)
@@ -177,12 +177,12 @@ final class LiveFold: ObservableObject {
     private func start() {
         guard let screen = Self.builtInScreen() else {
             state = .noDisplay
-            detail = "没有找到内置显示器，效果只作用于笔记本自己的屏幕。"
+            detail = "No built-in display found; the effect only applies to the laptop's own screen."
             return
         }
         guard let displayID = Self.displayID(of: screen) else {
             state = .noDisplay
-            detail = "无法读取内置显示器的编号。"
+            detail = "Could not read the built-in display's identifier."
             return
         }
         // Following the lid is pointless without a sensor, and silently doing
@@ -192,12 +192,12 @@ final class LiveFold: ObservableObject {
         // refuse to start on a Mac that has a perfectly good sensor.
         if store.settings.followLid && !sensor.isAvailable {
             state = .noSensor
-            detail = "没有找到翻盖角度传感器。可以在「开合」里关掉跟随，改用手动角度。"
+            detail = "No lid-angle sensor found. Turn off Follow Physical Lid in Lid and use a manual angle instead."
             return
         }
 
         state = .starting
-        detail = "正在连接桌面…"
+        detail = "Connecting to the desktop…"
         generation += 1
         let request = generation
 
@@ -234,7 +234,7 @@ final class LiveFold: ObservableObject {
                 closure = 0
                 didFold = false
                 sensor.setPolling(active: true)
-                detail = "已连接。轻轻合盖试试。"
+                detail = "Connected. Try closing the lid gently."
                 startTicking()
 
             } catch is CancellationError {
@@ -256,19 +256,19 @@ final class LiveFold: ObservableObject {
                     state = .off
                     if failuresSinceGrant >= 3 {
                         detail = """
-                            系统已经记录了权限，但采集仍然失败。macOS 有时要重启应用才会生效，\
-                            请点上面的「重新打开」。
+                            The system recorded the permission but capture still fails. macOS sometimes needs an app restart for it to apply; \
+                            click Reopen above.
                             """
                     } else {
-                        detail = "屏幕采集启动失败：\(error.localizedDescription)"
+                        detail = "Failed to start screen capture: \(error.localizedDescription)"
                         scheduleReconnect()
                     }
                 } else {
                     failuresSinceGrant = 0
                     state = .needsPermission
                     detail = """
-                        还没有拿到屏幕录制权限。请到「系统设置 → 隐私与安全性 → \
-                        屏幕与系统音频录制」里勾选 RuiC-FoldScreen，授权后会自动接上。
+                        Screen recording permission not granted yet. Open System Settings → Privacy & Security → \
+                        Screen & System Audio Recording and check RuiC-FoldScreen; it reconnects once granted.
                         """
                     watchForPermission()
                 }
@@ -345,8 +345,8 @@ final class LiveFold: ObservableObject {
         refreshPermissionStatus()
         guard hasScreenRecordingPermission else {
             detail = """
-                系统仍然报告没有屏幕录制权限。请到「系统设置 → 隐私与安全性 → \
-                屏幕与系统音频录制」里勾选 RuiC-FoldScreen。
+                The system still reports no screen recording permission. Open System Settings → Privacy & Security → \
+                Screen & System Audio Recording and check RuiC-FoldScreen.
                 """
             return
         }
@@ -364,7 +364,7 @@ final class LiveFold: ObservableObject {
     /// than doing it for them.
     func relaunch() {
         let url = Bundle.main.bundleURL
-        disable(message: "正在重新打开…")
+        disable(message: "Reopening…")
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.createsNewApplicationInstance = true
         NSWorkspace.shared.openApplication(at: url, configuration: configuration) { _, _ in
@@ -396,7 +396,7 @@ final class LiveFold: ObservableObject {
                 self.start()
                 return
             }
-            self?.detail = "自动重连失败。请再手动打开一次。"
+            self?.detail = "Automatic reconnect failed. Please enable it manually again."
         }
     }
 
@@ -440,7 +440,7 @@ final class LiveFold: ObservableObject {
             metalView?.isPaused = false
             overlay.show()
             hotKey.register { [weak self] in
-                self?.disable(message: "已用 Escape 暂停。")
+                self?.disable(message: "Paused with Escape.")
             }
             Task { await mirror.setHighRate(true) }
         } else if !visible && overlay.isVisible {
@@ -467,7 +467,7 @@ final class LiveFold: ObservableObject {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.isAsleep = true
-                self.interrupt("已随睡眠暂停，唤醒后自动恢复。")
+                self.interrupt("Paused for sleep; resumes automatically on wake.")
             }
         }
         workspace.addObserver(
@@ -486,7 +486,7 @@ final class LiveFold: ObservableObject {
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.isEnabled else { return }
-                self.interrupt("显示器有变化，正在重新连接…")
+                self.interrupt("Display configuration changed; reconnecting…")
             }
         }
         NotificationCenter.default.addObserver(

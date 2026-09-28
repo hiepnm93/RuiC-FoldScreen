@@ -12,10 +12,10 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .general: return "通用"
-        case .appearance: return "外观"
-        case .lid: return "开合"
-        case .about: return "关于"
+        case .general: return "General"
+        case .appearance: return "Appearance"
+        case .lid: return "Lid"
+        case .about: return "About"
         }
     }
 
@@ -86,7 +86,7 @@ struct SettingsView: View {
             Circle()
                 .fill(effect.state.isRunning ? Color.green : Color.secondary.opacity(0.5))
                 .frame(width: 7, height: 7)
-            Text(effect.state.isRunning ? "效果已启用" : "效果已暂停")
+            Text(effect.state.isRunning ? "Effect enabled" : "Effect paused")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -99,11 +99,11 @@ struct SettingsView: View {
 
     private var generalPane: some View {
         VStack(alignment: .leading, spacing: 18) {
-            SectionCard("桌面效果") {
+            SectionCard("Desktop Effect") {
                 VStack(alignment: .leading, spacing: 0) {
                     LabeledRow(
-                        title: effect.state == .starting ? "正在连接…" : "启用合盖弯屏",
-                        detail: "让桌面跟随翻盖角度一起弯折。"
+                        title: effect.state == .starting ? "Connecting…" : "Enable Fold Screen",
+                        detail: "Bend the desktop along with the lid angle."
                     ) {
                         Toggle("", isOn: Binding(
                             get: { effect.isEnabled },
@@ -115,8 +115,8 @@ struct SettingsView: View {
                     }
                     Divider()
                     LabeledRow(
-                        title: "登录时打开",
-                        detail: "在菜单栏启动，并恢复上次的开关状态。"
+                        title: "Open at Login",
+                        detail: "Starts in the menu bar and restores your last on/off state."
                     ) {
                         Toggle("", isOn: Binding(
                             get: { effect.openAtLogin },
@@ -136,13 +136,13 @@ struct SettingsView: View {
                 }
             }
 
-            SectionCard("屏幕录制权限") {
+            SectionCard("Screen Recording Permission") {
                 VStack(alignment: .leading, spacing: 10) {
                     LabeledRow(
-                        title: effect.hasScreenRecordingPermission ? "已获得权限" : "尚未获得权限",
+                        title: effect.hasScreenRecordingPermission ? "Permission granted" : "Permission not granted yet",
                         detail: effect.hasScreenRecordingPermission
-                            ? "系统已允许读取屏幕，效果可以正常启动。"
-                            : "效果需要读取屏幕内容才能把它弯起来，请到系统设置里勾选本应用。"
+                            ? "The system allows screen access; the effect can start normally."
+                            : "The effect must read the screen to bend it. Enable this app in System Settings."
                     ) {
                         Image(systemName: effect.hasScreenRecordingPermission
                             ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
@@ -153,14 +153,14 @@ struct SettingsView: View {
                     Divider()
                     VStack(alignment: .leading, spacing: 10) {
                         Text(
-                            "画面帧只在内存中停留一瞬，不写入磁盘、不上传，也不采集声音。"
+                            "Frames live in memory for an instant only — never written to disk, never uploaded, no audio captured."
                         )
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
                         HStack(spacing: 8) {
-                            Button("打开屏幕录制设置…") {
+                            Button("Open Screen Recording Settings…") {
                                 guard
                                     let url = URL(
                                         string:
@@ -169,15 +169,15 @@ struct SettingsView: View {
                                 else { return }
                                 NSWorkspace.shared.open(url)
                             }
-                            Button("重新检查") {
+                            Button("Recheck") {
                                 effect.refreshPermissionStatus()
                                 effect.recheckPermission()
                             }
                             .disabled(!effect.isEnabled)
-                            Button("重新打开") {
+                            Button("Reopen") {
                                 effect.relaunch()
                             }
-                            .help("macOS 有时要重启应用才会让新授权的权限生效。")
+                            .help("macOS sometimes needs an app restart for a freshly granted permission to take effect.")
                         }
                         .controlSize(.regular)
                     }
@@ -186,19 +186,19 @@ struct SettingsView: View {
                 }
             }
 
-            SectionCard("使用方式") {
+            SectionCard("How to Use") {
                 VStack(alignment: .leading, spacing: 0) {
                     InfoRow(
-                        symbol: "escape", title: "随时暂停",
-                        detail: "效果出现时按 Escape 立刻恢复桌面。")
+                        symbol: "escape", title: "Pause anytime",
+                        detail: "Press Escape while the effect is up to instantly restore the desktop.")
                     Divider()
                     InfoRow(
-                        symbol: "menubar.rectangle", title: "常驻菜单栏",
-                        detail: "关掉这个窗口不会退出，程序继续在菜单栏待命。")
+                        symbol: "menubar.rectangle", title: "Lives in the menu bar",
+                        detail: "Closing this window doesn't quit; the app keeps running in the menu bar.")
                     Divider()
                     InfoRow(
-                        symbol: "display", title: "只作用于内置屏",
-                        detail: "外接显示器不受影响，睡眠与切换显示器后会自动重连。")
+                        symbol: "display", title: "Built-in display only",
+                        detail: "External displays are untouched; it reconnects automatically after sleep or display changes.")
                 }
             }
         }
@@ -208,9 +208,9 @@ struct SettingsView: View {
 
     private var appearancePane: some View {
         VStack(alignment: .leading, spacing: 18) {
-            SectionCard("预览") {
+            SectionCard("Preview") {
                 VStack(spacing: 14) {
-                    Text("用内置画面预览折角，不需要屏幕录制权限。")
+                    Text("Preview the fold with the built-in capture — no screen recording permission needed.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -223,7 +223,7 @@ struct SettingsView: View {
                             if preview.isPlaying { preview.pause() } else { preview.play() }
                         } label: {
                             Label(
-                                preview.isPlaying ? "暂停" : "播放折角",
+                                preview.isPlaying ? "Pause" : "Play fold",
                                 systemImage: preview.isPlaying ? "pause.fill" : "play.fill")
                         }
                         .controlSize(.large)
@@ -242,7 +242,7 @@ struct SettingsView: View {
                             get: { preview.angle },
                             set: { preview.angle = $0; preview.scrub() }
                         ), in: 12...135)
-                        .accessibilityLabel("预览翻盖角度")
+                        .accessibilityLabel("Preview lid angle")
                         Text("\(Int(preview.angle))°")
                             .font(.callout.monospacedDigit())
                             .foregroundStyle(.secondary)
@@ -252,9 +252,9 @@ struct SettingsView: View {
                 .padding(14)
             }
 
-            SectionCard("外观") {
+            SectionCard("Appearance") {
                 VStack(alignment: .leading, spacing: 0) {
-                    LabeledRow(title: "风格", detail: store.settings.preset.detail) {
+                    LabeledRow(title: "Style", detail: store.settings.preset.detail) {
                         Picker("", selection: Binding(
                             get: { store.settings.preset },
                             set: { store.settings.preset = $0 }))
@@ -269,19 +269,19 @@ struct SettingsView: View {
                     }
                     Divider()
                     SliderRow(
-                        title: "透视", detail: "上方两角向内收拢的程度。",
+                        title: "Perspective", detail: "How much the top corners pull inward.",
                         value: Binding(
                             get: { store.settings.perspective },
                             set: { store.settings.perspective = $0 }))
                     Divider()
                     SliderRow(
-                        title: "虚化", detail: "桌面朝上方逐渐变模糊的强度。",
+                        title: "Blur", detail: "How strongly the desktop blurs toward the top.",
                         value: Binding(
                             get: { store.settings.blur },
                             set: { store.settings.blur = $0 }))
                     Divider()
                     SliderRow(
-                        title: "阴影", detail: "折起两侧的暗部深度。",
+                        title: "Shadow", detail: "How deep the shadows are on the folded sides.",
                         value: Binding(
                             get: { store.settings.shade },
                             set: { store.settings.shade = $0 }))
@@ -291,7 +291,7 @@ struct SettingsView: View {
             Button {
                 store.reset()
             } label: {
-                Label("恢复默认外观", systemImage: "arrow.uturn.backward")
+                Label("Reset Appearance", systemImage: "arrow.uturn.backward")
             }
             .controlSize(.regular)
         }
@@ -301,13 +301,13 @@ struct SettingsView: View {
 
     private var lidPane: some View {
         VStack(alignment: .leading, spacing: 18) {
-            SectionCard("翻盖传感器") {
+            SectionCard("Lid Sensor") {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(effect.lidAngle == nil ? "未检测到传感器" : "传感器已连接")
+                            Text(effect.lidAngle == nil ? "No sensor detected" : "Sensor connected")
                                 .font(.callout.weight(.medium))
-                            Text("当前翻盖角度。读不到角度时可以用下面的手动角度。")
+                            Text("Current lid angle. If it can't be read, use the manual angle below.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -319,7 +319,7 @@ struct SettingsView: View {
                     .padding(14)
 
                     Divider()
-                    LabeledRow(title: "跟随物理翻盖", detail: "关掉后改用固定的桌面角度。") {
+                    LabeledRow(title: "Follow Physical Lid", detail: "Turn off to drive the effect with a fixed desktop angle instead.") {
                         Toggle("", isOn: Binding(
                             get: { store.settings.followLid },
                             set: { store.settings.followLid = $0 }))
@@ -331,7 +331,7 @@ struct SettingsView: View {
                     if !store.settings.followLid {
                         Divider()
                         SliderRow(
-                            title: "桌面角度", detail: "启用后固定用这个角度驱动效果。",
+                            title: "Desktop angle", detail: "When on, the effect is driven by this fixed angle.",
                             range: 12...135, showsDegrees: true,
                             value: Binding(
                                 get: { store.settings.manualAngle },
@@ -340,17 +340,17 @@ struct SettingsView: View {
                 }
             }
 
-            SectionCard("动作与声音") {
+            SectionCard("Actions & Sound") {
                 VStack(alignment: .leading, spacing: 0) {
                     SliderRow(
-                        title: "完全展开角度",
-                        detail: "高于这个角度时桌面保持原样，不弯也不糊。",
+                        title: "Fully open angle",
+                        detail: "Above this angle the desktop stays untouched — no fold, no blur.",
                         range: 80...135, showsDegrees: true,
                         value: Binding(
                             get: { store.settings.clearAngle },
                             set: { store.settings.clearAngle = $0 }))
                     Divider()
-                    LabeledRow(title: "展开完成时轻响一声", detail: "桌面完全恢复后播一下提示音。") {
+                    LabeledRow(title: "Chime when fully open", detail: "Play a soft sound once the desktop is fully restored.") {
                         Toggle("", isOn: Binding(
                             get: { store.settings.sound },
                             set: { store.settings.sound = $0 }))
@@ -361,7 +361,7 @@ struct SettingsView: View {
                 }
             }
 
-            Text("翻盖传感器的报文格式苹果没有公开，不同机型和系统版本可能读不到。读不到时用「外观」里的预览一样能看效果。")
+            Text("Apple hasn't documented the lid sensor's report format, so some models and OS versions can't read it. If so, the Preview in Appearance shows the effect just as well.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -377,22 +377,22 @@ struct SettingsView: View {
                     .resizable()
                     .frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("合盖弯屏")
+                    Text("Fold Screen")
                         .font(.title2.weight(.semibold))
                     Text("RuiC-FoldScreen \(Self.version)")
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                    Text("合上盖子的过程里，让桌面跟着一起弯下去。")
+                    Text("As you close the lid, the desktop bends down with it.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
             }
             .padding(.vertical, 4)
 
-            SectionCard("工作原理") {
+            SectionCard("How It Works") {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(
-                        "翻盖角度由内置 HID 传感器读出，桌面由 ScreenCaptureKit 抓帧，再由一段 Metal 着色器按视角投影压出折角并逐层虚化。整条链路只读、不落盘。"
+                        "The lid angle comes from the built-in HID sensor, the desktop is captured with ScreenCaptureKit, and a Metal shader projects the fold with perspective and progressive blur. The whole pipeline is read-only and never touches disk."
                     )
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -402,11 +402,11 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            SectionCard("许可") {
+            SectionCard("License") {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("MIT 许可，自由使用与修改。")
+                    Text("MIT licensed — free to use and modify.")
                         .font(.callout)
-                    Text("折叠桌面这一主意最早的公开实现是 Bendy，本项目是一份独立的复刻实现，与 Bendy 及 Apple 均无关联。")
+                    Text("Bendy was the first public take on the folding-desktop idea; this project is an independent rewrite, unaffiliated with Bendy or Apple.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

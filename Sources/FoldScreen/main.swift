@@ -18,25 +18,25 @@ func value(_ name: String) -> String? {
 if flag("--help") || flag("-h") {
     print(
         """
-        RuiC-FoldScreen — 合盖弯屏
+        RuiC-FoldScreen — Fold Screen
 
-        用法:
-          RuiC-FoldScreen                     以菜单栏程序启动
-          RuiC-FoldScreen --selftest          跑无界面自检（数学、着色器、传感器、离屏渲染）
-          RuiC-FoldScreen --sensor            读一次翻盖角度
-          RuiC-FoldScreen --render-frames DIR 用真实渲染管线输出折角序列，供人工查看
+        Usage:
+          RuiC-FoldScreen                     launch as a menu bar app
+          RuiC-FoldScreen --selftest          run headless self-check (math, shaders, sensor, offscreen rendering)
+          RuiC-FoldScreen --sensor            read the lid angle once
+          RuiC-FoldScreen --render-frames DIR export fold frames through the real pipeline for manual review
               [--size 960x600] [--steps 7] [--preset 0|1|2] [--hold 0.8] [--cycle] [--no-grain]
-          RuiC-FoldScreen --scripted-lid       用脚本化的翻盖角度启动（无需真实盖子）
-          RuiC-FoldScreen --smoke              启用效果并在 3 秒后写出自检报告到 /tmp
+          RuiC-FoldScreen --scripted-lid       start with scripted lid angles (no physical lid required)
+          RuiC-FoldScreen --smoke              enable the effect and write a self-check report to /tmp after 3 s
 
-        自检退出码 0 表示通过。
+        Self-check exits 0 on success.
         """)
     exit(0)
 }
 
 if flag("--selftest") {
     let failures = Harness.runSelfTest()
-    print(failures == 0 ? "\n自检通过。" : "\n自检失败：\(failures) 项。")
+    print(failures == 0 ? "\nSelf-check passed." : "\nSelf-check failed: \(failures) item(s).")
     exit(failures == 0 ? 0 : 1)
 }
 
@@ -47,9 +47,9 @@ if flag("--render-frames") {
 if flag("--sensor") {
     let sensor = HIDLidAngleSource()
     if let angle = sensor.read() {
-        print(String(format: "翻盖角度：%.0f°", angle))
+        print(String(format: "Lid angle: %.0f°", angle))
     } else {
-        print("这台机器没有读到翻盖角度传感器。")
+        print("No lid-angle sensor found on this machine.")
         exit(2)
     }
     exit(0)

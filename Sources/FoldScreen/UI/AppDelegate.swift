@@ -50,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        effect?.disable(message: "已退出。")
+        effect?.disable(message: "Quit. Desktop restored.")
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
@@ -62,28 +62,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.button?.image = NSImage(
-            systemSymbolName: "laptopcomputer", accessibilityDescription: "合盖弯屏")
-        item.button?.toolTip = "合盖弯屏 RuiC-FoldScreen"
+            systemSymbolName: "laptopcomputer", accessibilityDescription: "Fold Screen")
+        item.button?.toolTip = "RuiC-FoldScreen — Fold Screen"
 
         let menu = NSMenu()
-        menu.addItem(withTitle: "合盖弯屏", action: nil, keyEquivalent: "")
+        menu.addItem(withTitle: "Fold Screen", action: nil, keyEquivalent: "")
         menu.addItem(.separator())
 
         let toggle = menu.addItem(
-            withTitle: "启用 / 暂停", action: #selector(toggleEffect), keyEquivalent: "")
+            withTitle: "Enable / Pause", action: #selector(toggleEffect), keyEquivalent: "")
         toggle.target = self
 
         let settings = menu.addItem(
-            withTitle: "设置…", action: #selector(openSettings), keyEquivalent: ",")
+            withTitle: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
 
         let play = menu.addItem(
-            withTitle: "播放预览", action: #selector(playPreview), keyEquivalent: "")
+            withTitle: "Play Preview", action: #selector(playPreview), keyEquivalent: "")
         play.target = self
 
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "退出合盖弯屏", action: #selector(NSApplication.terminate(_:)),
+            withTitle: "Quit RuiC-FoldScreen", action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q")
 
         item.menu = menu
@@ -108,7 +108,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 contentRect: NSRect(x: 0, y: 0, width: 760, height: 580),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered, defer: false)
-            window.title = "合盖弯屏"
+            window.title = "Fold Screen"
             window.isReleasedWhenClosed = false
             window.contentMinSize = NSSize(width: 720, height: 540)
             window.contentView = NSHostingView(

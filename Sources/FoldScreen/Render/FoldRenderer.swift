@@ -352,14 +352,14 @@ enum FoldRendererError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noMetalDevice: return "这台 Mac 没有可用的 Metal 设备。"
-        case .noCommandQueue: return "无法创建 Metal 命令队列。"
-        case .shaderCompilationFailed(let detail): return "折叠着色器编译失败：\(detail)"
-        case .missingShaderFunction: return "着色器缺少 foldVertex / foldFragment 入口。"
-        case .previewTextureAllocationFailed: return "无法分配预览贴图。"
-        case .renderTargetAllocationFailed: return "无法分配离屏渲染目标。"
-        case .encoderUnavailable: return "无法创建 Metal 渲染编码器。"
-        case .imageAssemblyFailed: return "无法把渲染结果组装成图像。"
+        case .noMetalDevice: return "No usable Metal device on this Mac."
+        case .noCommandQueue: return "Could not create the Metal command queue."
+        case .shaderCompilationFailed(let detail): return "Fold shader compilation failed: \(detail)"
+        case .missingShaderFunction: return "Shader is missing the foldVertex / foldFragment entry points."
+        case .previewTextureAllocationFailed: return "Could not allocate the preview texture."
+        case .renderTargetAllocationFailed: return "Could not allocate the offscreen render target."
+        case .encoderUnavailable: return "Could not create the Metal render encoder."
+        case .imageAssemblyFailed: return "Could not assemble the rendered result into an image."
         }
     }
 }

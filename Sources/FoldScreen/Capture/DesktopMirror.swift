@@ -248,8 +248,8 @@ enum CaptureError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .displayUnavailable: return "找不到内置显示器。"
-        case .permissionDenied: return "没有屏幕录制权限。"
+        case .displayUnavailable: return "Built-in display not found."
+        case .permissionDenied: return "No screen recording permission."
         }
     }
 }
